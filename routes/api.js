@@ -1,11 +1,21 @@
 const router = require("express").Router();
 const Workout = require("../models/Workout");
-const Exercises = require("../models/Exercises");
 
 router.get("/workouts", (req, res) => {
+    
     Workout.find({})
         .then(dbWorkout => {
             res.status(200).json(dbWorkout);
+        })
+        .catch(err => {
+            res.status(400).json(err);
+        });
+});
+
+router.get("/workouts/range", (req, res) => {
+    Workout.find({}).sort({day:-1}).limit(7)
+        .then(dbWorkoutRange => {
+            res.status(200).json(dbWorkoutRange);
         })
         .catch(err => {
             res.status(400).json(err);
@@ -26,38 +36,16 @@ router.post("/workouts", ({
 });
 
 router.put("/workouts/:id", (req, res) => {
-    Workout.updateOne({
+    Workout.findByIdAndUpdate({
                 _id: req.params.id
             }, {
                 $push: {
                     exercises: req.body
-                }
-            }
+                }                
+            }, {new: true}
         )
         .then(dbUpdateWorkout => {
             res.status(200).json(dbUpdateWorkout);
-        })
-        .catch(err => {
-            res.status(400).json(err);
-        });
-});
-
-router.get("/exercise", (req, res) => {
-    Exercises.find({})
-        .then(dbExercise => {
-            res.status(200).json(dbExercise);
-        })
-        .catch(err => {
-            res.status(400).json(err);
-        });
-});
-
-router.post("/exercise", ({
-    body
-}, res) => {
-    Exercises.create(body)
-        .then(dbExercise => {
-            res.status(200).json(dbExercise);
         })
         .catch(err => {
             res.status(400).json(err);
